@@ -24,6 +24,7 @@ mongoClient
 const app = express();
 
 const userRoute = require("./routes/user");
+const shopRoute = require("./routes/shop");
 
 // Middlewares
 app.use(logger("dev"));
@@ -33,6 +34,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 // Routes
 app.use("/users", userRoute);
+app.use("/shops", shopRoute);
 
 // Routes
 app.get("/", (req, res, next) => {

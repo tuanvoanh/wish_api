@@ -27,6 +27,7 @@ module.exports = UserService = {
 
     // gui sgMail
     const url = `${BASE_URL}/users/secret?token=${token}`
+    console.log("url:", url)
     const html = `<p>Hi ${firstName} ${lastName} </p>
     <p>Click <a href="${url}">here</a> to active your account</p>`
     await emailHelper.sendEmail(email, TEAM_EMAIL, activateSubject, html)
@@ -60,7 +61,6 @@ module.exports = UserService = {
   },
   resetPassword: async (user, token) => {
     const url = `${BASE_URL}/users/changePassword?token=${token}`
-    console.log(url)
     const html = `<p>Hi ${user.firstName} ${user.lastName}</p>
     <p>Click <a href="${url}">here</a> to create your new password</p>`
     await emailHelper.sendEmail(user.email, TEAM_EMAIL, "Reset Password", html)

@@ -1,4 +1,5 @@
 const Joi = require("@hapi/joi");
+const Role = require('../enums').eROLE
 
 const validateBody = (schema) => {
   return (req, res, next) => {
@@ -53,6 +54,11 @@ const schemas = {
     password: Joi.string().min(6).required(),
   }),
 
+  addUserSchema: Joi.object().keys({
+    email: Joi.string().email().required(),
+    role: Joi.string().valid(Role.staff)
+  }),
+
   authSignUpSchema: Joi.object().keys({
     firstName: Joi.string().min(2).required(),
     lastName: Joi.string().min(2).required(),
@@ -64,6 +70,10 @@ const schemas = {
     param: Joi.string()
       .regex(/^[0-9a-fA-F]{24}$/)
       .required(),
+  }),
+
+  codeSchema: Joi.object().keys({
+    param: Joi.string()
   }),
 
   intSchema: Joi.object().keys({
@@ -87,9 +97,9 @@ const schemas = {
   }),
 
   shopSchema: Joi.object().keys({
-    name: Joi.string().min(2),
-    clientId: Joi.string().min(2),
-    clientSecret: Joi.string().email(),
+    name: Joi.string().min(5).required(),
+    clientId: Joi.string().min(10).required(),
+    clientSecret: Joi.string().min(10).required(),
   }),
 
   shopPagination: Joi.object().keys({

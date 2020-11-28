@@ -27,7 +27,7 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', async function(next) {
   try {
-    if(this.authType !== 'local') next()
+    // if(this.authType !== 'local') next()
 
     // Generate a salt
     const salt = await bcrypt.genSalt(10)
