@@ -7,7 +7,7 @@ const express = require("express");
 const logger = require("morgan");
 const mongoClient = require("mongoose");
 const { MONGODB_URL, PORT } = require("./configs");
-
+require("./jobs")
 // setup connect mongodb by mongoose
 mongoClient
   .connect(MONGODB_URL, {
@@ -54,12 +54,12 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   const error = app.get("env") === "development" ? err : {};
   const status = err.status || 500;
-
+  const errorObject = {}
+  errorObject.message = error.message
+  errorObject.code = error.code
   // response to client
   return res.status(status).json({
-    error: {
-      message: error.message,
-    },
+    error: errorObject
   });
 });
 

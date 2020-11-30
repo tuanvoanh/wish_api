@@ -37,7 +37,9 @@ router
 router
   .route("/changePassword")
   .get(UserController.forgotPassword)
-  .post(UserController.newPassword);
+  .post(
+    passport.authenticate("token_query-jwt", { session: false }),
+    UserController.newPassword);
     
 router.post('/resetPassword', validateBody(schemas.userResetPassword), UserController.resetPassword)
 

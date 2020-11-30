@@ -95,4 +95,58 @@ router.route("/:shop_id/staffs/:staff_id").delete(
   ShopController.removeStaff
 );
 
+router.route("/:shop_id/delivery_countries").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  isMember,
+  ShopController.getDeliveryCountry
+);
+
+router.route("/:shop_id/shipping_carriers").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateQuery(schemas.localSchema),
+  isMember,
+  ShopController.getShippingCarrier
+);
+
+router.route("/:shop_id/orders").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateQuery(schemas.orderQuerySchema),
+  isMember,
+  ShopController.getAllOrder
+);
+
+router
+  .route("/:shop_id/fullfill_orders")
+  .get(
+    passport.authenticate("jwt", { session: false }), // get delivery country
+    validateParam(schemas.idSchema, "shop_id"),
+    validateQuery(schemas.orderQuerySchema),
+    isMember,
+    ShopController.getFullFillOrder
+  )
+  .post(
+    passport.authenticate("jwt", { session: false }), // get delivery country
+    validateParam(schemas.idSchema, "shop_id"),
+    validateBody(schemas.fulfillOrderSchema),
+    isMember,
+    ShopController.fullFillOrder
+  );
+
+router.route("/:shop_id/refresh_token_url").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  isAdmin,
+  ShopController.getRefreshUrl
+);
+
+router.route("/:shop_id/access_token").put(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateBody(schemas.updateAccessTokenSchema),
+  isAdmin,
+  ShopController.updateAccessToken
+);
 module.exports = router;

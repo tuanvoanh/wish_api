@@ -76,6 +76,15 @@ const schemas = {
     param: Joi.string()
   }),
 
+  localSchema: Joi.object().keys({
+    locale: Joi.string().required().min(2)
+  }),
+
+  orderQuerySchema: Joi.object().keys({
+    start: Joi.number().integer().min(0).default(0),
+    limit: Joi.number().integer().min(0).default(5),
+  }),
+
   intSchema: Joi.object().keys({
     param: Joi.number().integer().min(0).required(),
   }),
@@ -107,6 +116,17 @@ const schemas = {
     limit: Joi.number().integer().positive().default(10),
     name: Joi.string().optional()
   }),
+
+  fulfillOrderSchema: Joi.object().keys({
+    shippingCarrier: Joi.string().min(2).required(), 
+    countryCode: Joi.string().min(2).required(), 
+    orderId: Joi.string().min(8).required()
+  }),
+
+  updateAccessTokenSchema: Joi.object().keys({
+    accessToken: Joi.string().min(2).required(), 
+    expiredTime: Joi.date().required(), 
+  })
 };
 
 module.exports = {

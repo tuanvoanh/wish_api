@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Role = require("../enums").eROLE;
 const config = require("../configs");
 const axios = require("axios");
+const axiosWishError = require("../helpers/errorInstance").axiosWishError;
 
 const listShopOfUser = async (req, res, next) => {
   const limit = req.value.query.limit;
@@ -124,12 +125,11 @@ const editShop = async (req, res, next) => {
 };
 
 const removeShop = async (req, res, next) => {
-    const { shop_id } = req.value.params;
-    await ShopUser.deleteMany({shop: shop_id});
-    await ShopUser.deleteOne({_id: shop_id})
-    return res.status(204).json({});
-  };
-  
+  const { shop_id } = req.value.params;
+  await ShopUser.deleteMany({ shop: shop_id });
+  await ShopUser.deleteOne({ _id: shop_id });
+  return res.status(204).json({});
+};
 
 const createCodeUrl = async (req, res, next) => {
   const { shop_id } = req.value.params;
@@ -144,7 +144,6 @@ const createCodeUrl = async (req, res, next) => {
 
 const applyCode = async (req, res, next) => {
   const { shop_id, code } = req.value.params;
-  console.log(req.value.params);
   const theShop = await Shop.findOne({
     _id: shop_id,
   });
@@ -169,10 +168,144 @@ const applyCode = async (req, res, next) => {
       }
     );
   } catch (error) {
-    throw error;
+    throw new Error(error);
   }
   return res.status(200).json({ success: true });
 };
+
+const getDeliveryCountry = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/fulfillment/get-confirmed-delivery-countries?access_token=${theShop.accessToken}&format=json`;
+  // const url = 'https://merchant.wish.com/api/v2/fulfillment/get-confirmed-delivery-countries?access_token=c4924c621da748a2920b6d2d47379fa4&format=json'
+  try {
+    const { data } = await axios.get(url);
+    return res.status(200).json(data.data);
+  } catch (error) {
+    return res.status(200).json(config.listCountry);
+    throw axiosWishError(error);
+  }
+};
+
+const getShippingCarrier = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { locale } = req.value.query;
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/fulfillment/get-shipping-carriers?access_token=${theShop.accessToken}&format=json&locale=${locale}`;
+  // const url = 'https://merchant.wish.com/api/v2/fulfillment/get-shipping-carriers?access_token=0308b59911ac47baa62ffb896d3cfc0e&format=json&locale=' + locale
+  try {
+    const { data } = await axios.get(url);
+    return res.status(200).json(data.data);
+  } catch (error) {
+    return res.status(200).json(config.listShippingUs);
+    throw axiosWishError(error);
+  }
+};
+
+const getAllOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { limit, start } = req.value.query;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/order/multi-get?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
+  // const url = `${config.WISH_URL_V2}/product/fbw-sku-history?access_token=${theShop.accessToken}&format=json`
+  try {
+    const { data } = await axios.get(url);
+    // return res.status(200).json({data: data.data, count: data.data.length})
+    return res.status(200).json(data.data);
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+};
+
+const getFullFillOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { limit, start } = req.value.query;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/order/get-fulfill?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
+  // const url = '/order/get-fulfill?access_token=50ddea33f44e4bb1a8d53f26a3496e09&format=json'
+  try {
+    const { data } = await axios.get(url);
+    return res.status(200).json({ data: data.data, count: data.data.length });
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+};
+
+const fullFillOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { shippingCarrier, countryCode, orderId } = req.value.body;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`;
+  // const url = '/order/get-fulfill?access_token=50ddea33f44e4bb1a8d53f26a3496e09&format=json'
+  try {
+    const { data } = await axios.get(url);
+    return res.status(200).json({ data: data.data });
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+};
+
+const getRefreshUrl = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const clientId = theShop.clientId;
+  const clientSecret = theShop.clientSecret;
+  const refreshToken = theShop.refreshToken;
+  const url = `https://sandbox.merchant.wish.com/api/v3/oauth/refresh_token?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`;
+  return res.status(200).json({url})
+};
+
+const updateAccessToken = async (req, res, next) => {
+    console.log("aaa")
+    const { shop_id } = req.value.params;
+  
+    const myShop = await Shop.updateOne(
+      { _id: shop_id },
+      {
+        $set: {
+          accessToken: req.value.body.accessToken,
+          expiredTime: req.value.body.expiredTime,
+        },
+      }
+    );
+    return res.status(200).json({ success: true });
+  };
+  
 
 module.exports = {
   listShopOfUser,
@@ -185,4 +318,11 @@ module.exports = {
   removeStaff,
   editShop,
   removeShop,
+  getDeliveryCountry,
+  getShippingCarrier,
+  getAllOrder,
+  getFullFillOrder,
+  fullFillOrder,
+  getRefreshUrl,
+  updateAccessToken,
 };
