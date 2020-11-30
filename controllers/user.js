@@ -61,7 +61,7 @@ const signIn = async (req, res, next) => {
   const token = UserService.encodedToken(req.user._id)
 
   res.setHeader('Authorization', token)
-  return res.status(200).json({ success: true })
+  return res.status(200).json({ token })
 };
 
 const signUp = async (req, res, next) => {
