@@ -231,8 +231,7 @@ const getAllOrder = async (req, res, next) => {
   // const url = `${config.WISH_URL_V2}/product/fbw-sku-history?access_token=${theShop.accessToken}&format=json`
   try {
     const { data } = await axios.get(url);
-    // return res.status(200).json({data: data.data, count: data.data.length})
-    return res.status(200).json(data.data);
+    return res.status(200).json({data: data.data, count: data.data.length})
   } catch (error) {
     throw axiosWishError(error);
   }
