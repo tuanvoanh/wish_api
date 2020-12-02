@@ -142,6 +142,13 @@ router.route("/:shop_id/refresh_token_url").get(
   ShopController.getRefreshUrl
 );
 
+router.route("/:shop_id/auto_refresh_token").get(
+  passport.authenticate("jwt", { session: false }),
+  validateParam(schemas.idSchema, "shop_id"),
+  isAdmin,
+  ShopController.AutoRefreshToken
+);
+
 router.route("/:shop_id/access_token").put(
   passport.authenticate("jwt", { session: false }), // get delivery country
   validateParam(schemas.idSchema, "shop_id"),

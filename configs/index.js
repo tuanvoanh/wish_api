@@ -12,6 +12,7 @@ module.exports = {
   WISH_URL_V3: process.env.WISH_URL_V3 || "https://sandbox.merchant.wish.com/api/v3",
   WISH_URL_V2: process.env.WISH_URL_V2 || "https://sandbox.merchant.wish.com/api/v2",
   REDIRECT_URL: process.env.REDIRECT_URL || "https://www.google.com.vn",
+  REFRESH_URL: process.env.REFRESH_URL || "https://sandbox.merchant.wish.com/api/v3/oauth/refresh_token",
   listCountry: listCountry,
   listShippingUs: listShippingUs,
 }

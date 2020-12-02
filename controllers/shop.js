@@ -94,6 +94,10 @@ const removeStaff = async (req, res, next) => {
 };
 
 const creatNewShop = async (req, res, next) => {
+  const clientIdExisted = await ShopUser.findOne({clientId: req.value.body.clientId})
+  if (clientIdExisted) {
+    throw new Error("this Client Id is existed")
+  }
   const newShop = await Shop.create({
     name: req.value.body.name,
     created_by: req.user._id,
@@ -287,25 +291,62 @@ const getRefreshUrl = async (req, res, next) => {
   const clientSecret = theShop.clientSecret;
   const refreshToken = theShop.refreshToken;
   const url = `https://sandbox.merchant.wish.com/api/v3/oauth/refresh_token?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`;
-  return res.status(200).json({url})
+  return res.status(200).json({ url });
 };
 
 const updateAccessToken = async (req, res, next) => {
-    console.log("aaa")
-    const { shop_id } = req.value.params;
-  
-    const myShop = await Shop.updateOne(
-      { _id: shop_id },
-      {
-        $set: {
-          accessToken: req.value.body.accessToken,
-          expiredTime: req.value.body.expiredTime,
-        },
-      }
-    );
-    return res.status(200).json({ success: true });
-  };
-  
+  console.log("aaa");
+  const { shop_id } = req.value.params;
+
+  const myShop = await Shop.updateOne(
+    { _id: shop_id },
+    {
+      $set: {
+        accessToken: req.value.body.accessToken,
+        expiredTime: req.value.body.expiredTime,
+      },
+    }
+  );
+  return res.status(200).json({ success: true });
+};
+
+const AutoRefreshToken = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  if (theShop) {
+    const clientId = theShop.clientId;
+    const clientSecret = theShop.clientSecret;
+    const refreshToken = theShop.refreshToken;
+    const url = `${config.REFRESH_URL}?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`;
+    try {
+      const { data } = await axios.get(url);
+      const newData = data.data;
+      await Shop.updateOne(
+        { _id: theShop._id },
+        {
+          $set: {
+            accessToken: newData.access_token,
+            expiredTime: newData.expiry_time,
+          },
+        }
+      );
+      return res
+        .status(200)
+        .json({
+          success: true,
+          accessToken: newData.access_token,
+          expiredTime: newData.expiry_time,
+        });
+    } catch (error) {
+      throw axiosWishError(error);
+    }
+  }
+};
 
 module.exports = {
   listShopOfUser,
@@ -325,4 +366,5 @@ module.exports = {
   fullFillOrder,
   getRefreshUrl,
   updateAccessToken,
+  AutoRefreshToken,
 };

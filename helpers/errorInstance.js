@@ -1,6 +1,6 @@
 const axiosWishError = (error) => {
   return {
-    status: 400,
+    status: 501,
     code: error.response.data.code,
     message: error.response.data.message,
   };
