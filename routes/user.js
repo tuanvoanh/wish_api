@@ -9,7 +9,7 @@ const {
   validateParam,
   schemas,
 } = require("../helpers/routerHelpers");
-
+const { isSuperAdmin } = require("../helpers/shopValidate");
 const passport = require("passport");
 const passportConfig = require("../middlewares/passport"); // chi la noi code, khong de ngoai app vi chi dung cho user
 
@@ -32,16 +32,24 @@ router
 
 router
   .route("/secret")
-  .get(passport.authenticate("body-jwt", { session: false }), UserController.secret);
+  .get(
+    passport.authenticate("body-jwt", { session: false }),
+    UserController.secret
+  );
 
 router
   .route("/changePassword")
   .get(UserController.forgotPassword)
   .post(
     passport.authenticate("token_query-jwt", { session: false }),
-    UserController.newPassword);
-    
-router.post('/resetPassword', validateBody(schemas.userResetPassword), UserController.resetPassword)
+    UserController.newPassword
+  );
+
+router.post(
+  "/resetPassword",
+  validateBody(schemas.userResetPassword),
+  UserController.resetPassword
+);
 
 router
   .route("/:userID")
@@ -50,6 +58,16 @@ router
     validateParam(schemas.idSchema, "userID"),
     validateBody(schemas.userOptionalSchema),
     UserController.updateUser
+  );
+
+router
+  .route("/:userID/changePassword")
+  .patch(
+    passport.authenticate("jwt", { session: false }),
+    isSuperAdmin,
+    validateParam(schemas.idSchema, "userID"),
+    validateBody(schemas.userChangePassSchema),
+    UserController.changUserPass
   );
 
 module.exports = router;

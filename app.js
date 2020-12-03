@@ -7,6 +7,7 @@ const express = require("express");
 const logger = require("morgan");
 const mongoClient = require("mongoose");
 const { MONGODB_URL, PORT } = require("./configs");
+const adminHelper = require("./helpers/createAdmin")
 require("./jobs")
 // setup connect mongodb by mongoose
 mongoClient
@@ -15,8 +16,9 @@ mongoClient
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
+  .then(async() => {
     console.log("✅ Connected database from mongodb.");
+    await adminHelper.createAdmin()
   })
   .catch((error) =>
     console.error(`❌ Connect database is failed with error which is ${error}`)

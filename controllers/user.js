@@ -61,7 +61,7 @@ const signIn = async (req, res, next) => {
   const token = UserService.encodedToken(req.user._id)
 
   res.setHeader('Authorization', token)
-  return res.status(200).json({ token })
+  return res.status(200).json({ token, role: req.user.role })
 };
 
 const signUp = async (req, res, next) => {
@@ -97,6 +97,20 @@ const updateUser = async (req, res, next) => {
   return res.status(200).json({ success: true });
 };
 
+const changUserPass = async (req, res, next) => {
+  // number of fields
+  const { userID } = req.value.params;
+  const { password } = req.value.body;
+  
+  const user = await User.findOne({_id: userID});
+
+  user.password = password
+  
+  await user.save()
+
+  return res.status(200).json({ success: true });
+};
+
 module.exports = {
   // authFacebook,
   // authGoogle,
@@ -111,4 +125,5 @@ module.exports = {
   forgotPassword,
   newPassword,
   resetPassword,
+  changUserPass
 };

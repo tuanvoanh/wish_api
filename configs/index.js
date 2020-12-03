@@ -15,4 +15,6 @@ module.exports = {
   REFRESH_URL: process.env.REFRESH_URL || "https://sandbox.merchant.wish.com/api/v3/oauth/refresh_token",
   listCountry: listCountry,
   listShippingUs: listShippingUs,
+  ADMIN_ACCOUNT: process.env.ADMIN_ACCOUNT,
+  ADMIN_PASS: process.env.ADMIN_PASS
 }

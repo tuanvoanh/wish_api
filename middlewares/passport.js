@@ -78,7 +78,7 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const user = await User.findOne({ email, isActive: true });
+        const user = await User.findOne({ email });
         if (!user) return done(null, false);
         const isCorrectPassword = await user.isValidPassword(password);
         if (!isCorrectPassword) throw new Error("Invalid Password");
