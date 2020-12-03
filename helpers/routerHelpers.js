@@ -125,7 +125,8 @@ const schemas = {
   fulfillOrderSchema: Joi.object().keys({
     shippingCarrier: Joi.string().min(2).required(), 
     countryCode: Joi.string().min(2).required(), 
-    orderId: Joi.string().min(8).required()
+    orderId: Joi.string().min(8).required(),
+    trackingNumber: Joi.string().optional()
   }),
 
   updateAccessTokenSchema: Joi.object().keys({

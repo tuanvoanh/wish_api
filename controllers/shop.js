@@ -259,7 +259,7 @@ const getFullFillOrder = async (req, res, next) => {
 
 const fullFillOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
-  const { shippingCarrier, countryCode, orderId } = req.value.body;
+  const { shippingCarrier, countryCode, orderId, trackingNumber } = req.value.body;
 
   const theShop = await Shop.findOne({
     _id: shop_id,
@@ -267,7 +267,7 @@ const fullFillOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`;
+  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&tracking_number=${trackingNumber}&origin_country_code=${countryCode}`;
   // const url = '/order/get-fulfill?access_token=50ddea33f44e4bb1a8d53f26a3496e09&format=json'
   try {
     const { data } = await axios.get(url);
