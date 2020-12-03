@@ -192,7 +192,7 @@ const getDeliveryCountry = async (req, res, next) => {
     const { data } = await axios.get(url);
     return res.status(200).json(data.data);
   } catch (error) {
-    return res.status(200).json(config.listCountry);
+    // return res.status(200).json(config.listCountry);
     throw axiosWishError(error);
   }
 };
@@ -212,7 +212,7 @@ const getShippingCarrier = async (req, res, next) => {
     const { data } = await axios.get(url);
     return res.status(200).json(data.data);
   } catch (error) {
-    return res.status(200).json(config.listShippingUs);
+    // return res.status(200).json(config.listShippingUs);
     throw axiosWishError(error);
   }
 };
