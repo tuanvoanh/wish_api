@@ -99,11 +99,12 @@ const updateUser = async (req, res, next) => {
 
 const changUserPass = async (req, res, next) => {
   // number of fields
-  const { userID } = req.value.params;
-  const { password } = req.value.body;
+  const { password, email } = req.value.body;
   
-  const user = await User.findOne({_id: userID});
-
+  const user = await User.findOne({email: email});
+  if (!user) {
+    throw new Error("This email does not exist")
+  }
   user.password = password
   
   await user.save()

@@ -103,6 +103,7 @@ const schemas = {
 
   userChangePassSchema: Joi.object().keys({
     password: Joi.string().min(6),
+    email: Joi.string().email(),
   }),
 
   userResetPassword: Joi.object().keys({

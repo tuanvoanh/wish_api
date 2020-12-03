@@ -61,11 +61,10 @@ router
   );
 
 router
-  .route("/:userID/changePassword")
+  .route("/admin/changePassword")
   .patch(
     passport.authenticate("jwt", { session: false }),
     isSuperAdmin,
-    validateParam(schemas.idSchema, "userID"),
     validateBody(schemas.userChangePassSchema),
     UserController.changUserPass
   );
