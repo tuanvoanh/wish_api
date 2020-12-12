@@ -5,6 +5,9 @@ const Role = require("../enums").eROLE;
 const config = require("../configs");
 const axios = require("axios");
 const axiosWishError = require("../helpers/errorInstance").axiosWishError;
+const SyncDataService = require("../services/syncData")
+const moment = require("moment")
+const Order = require("../models/Order")
 
 const listShopOfUser = async (req, res, next) => {
   const limit = req.value.query.limit;
@@ -186,8 +189,9 @@ const getDeliveryCountry = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/fulfillment/get-confirmed-delivery-countries?access_token=${theShop.accessToken}&format=json`;
-  // const url = 'https://merchant.wish.com/api/v2/fulfillment/get-confirmed-delivery-countries?access_token=c4924c621da748a2920b6d2d47379fa4&format=json'
+  // const url = `${config.WISH_URL_V2}/fulfillment/get-confirmed-delivery-countries?access_token=${theShop.accessToken}&format=json`;
+  // console.log(url)
+  const url = 'https://merchant.wish.com/api/v2/fulfillment/get-confirmed-delivery-countries?access_token=c4924c621da748a2920b6d2d47379fa4&format=json'
   try {
     const { data } = await axios.get(url);
     return res.status(200).json(data.data);
@@ -219,7 +223,7 @@ const getShippingCarrier = async (req, res, next) => {
 
 const getAllOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
-  const { limit, start } = req.value.query;
+  const { limit, start, order } = req.value.query;
 
   const theShop = await Shop.findOne({
     _id: shop_id,
@@ -227,11 +231,19 @@ const getAllOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/order/multi-get?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
+  const cond = {shopId: shop_id}
+  if (order) {
+    cond["order_id"] = { "$regex": `.*${order}.*` }
+  }
+  // const url = `${config.WISH_URL_V2}/order/multi-get?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
   // const url = `${config.WISH_URL_V2}/product/fbw-sku-history?access_token=${theShop.accessToken}&format=json`
   try {
-    const { data } = await axios.get(url);
-    return res.status(200).json({data: data.data, count: data.data.length})
+    // const { data } = await axios.get(url);
+    // return res.status(200).json({data: data.data, count: data.data.length})
+    
+    const result = await Order.find(cond).sort({last_updated: -1}).limit(limit).skip(start)
+    const total = await Order.countDocuments(cond)
+    return res.status(200).json({ data: result, count: total });
   } catch (error) {
     throw axiosWishError(error);
   }
@@ -239,7 +251,7 @@ const getAllOrder = async (req, res, next) => {
 
 const getFullFillOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
-  const { limit, start } = req.value.query;
+  const { limit, start, order } = req.value.query;
 
   const theShop = await Shop.findOne({
     _id: shop_id,
@@ -247,15 +259,47 @@ const getFullFillOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/order/get-fulfill?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
+  const cond = {shopId: shop_id, shipping_provider: null}
+  if (order) {
+    cond["order_id"] = { "$regex": `.*${order}.*` }
+  }
+  // const url = `${config.WISH_URL_V2}/order/get-fulfill?access_token=${theShop.accessToken}&limit=${limit}&start=${start}&format=json`;
   // const url = '/order/get-fulfill?access_token=50ddea33f44e4bb1a8d53f26a3496e09&format=json'
   try {
-    const { data } = await axios.get(url);
-    return res.status(200).json({ data: data.data, count: data.data.length });
+    // const { data } = await axios.get(url);
+    // return res.status(200).json({ data: data.data, count: data.data.length });
+    const result = await Order.find(cond).sort({last_updated: -1}).limit(limit).skip(start)
+    const total = await Order.countDocuments(cond)
+    return res.status(200).json({ data: result, count: total });
   } catch (error) {
-    throw axiosWishError(error);
+    throw error;
   }
 };
+
+const getNotedOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { limit, start, order } = req.value.query;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const cond = {shopId: shop_id, isNoted: true}
+  if (order) {
+    cond["order_id"] = { "$regex": `.*${order}.*` }
+  }
+  try {
+    const result = await Order.find(cond).sort({last_updated: -1}).limit(limit).skip(start)
+    const total = await Order.countDocuments(cond)
+    return res.status(200).json({ data: result, count: total });
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 
 const fullFillOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
@@ -267,8 +311,7 @@ const fullFillOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&tracking_number=${trackingNumber}&origin_country_code=${countryCode}`;
-  // const url = '/order/get-fulfill?access_token=50ddea33f44e4bb1a8d53f26a3496e09&format=json'
+  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`; //&tracking_number=${trackingNumber}
   try {
     const { data } = await axios.get(url);
     return res.status(200).json({ data: data.data });
@@ -294,7 +337,6 @@ const getRefreshUrl = async (req, res, next) => {
 };
 
 const updateAccessToken = async (req, res, next) => {
-  console.log("aaa");
   const { shop_id } = req.value.params;
 
   const myShop = await Shop.updateOne(
@@ -347,6 +389,80 @@ const AutoRefreshToken = async (req, res, next) => {
   }
 };
 
+const syncShopData = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { date } = req.value.query;
+  const myShop = await Shop.findOne(
+    { _id: shop_id }
+  );
+  if (!myShop || !myShop.accessToken) {
+    throw new Error("this shop does not exist or don't have token yet");
+  }
+  const dateString = moment(date).format("YYYY-MM-DD")
+  // console.log("dateString: ", dateString)
+  const result = await SyncDataService.syncDateByDate(myShop.accessToken, dateString, myShop)
+  return res.status(200).json({ success: result });
+};
+
+const noteOrder = async (req, res, next) => {
+  const { shop_id, order_id } = req.value.params;
+  const { isNoted } = req.value.body;
+  const myOrder = await Order.findOne(
+    { shopId: shop_id, order_id: order_id}
+  );
+  if (!myOrder) {
+    throw new Error("This order does not exist");
+  }
+  await Order.updateOne(
+    { shopId: shop_id, order_id: order_id}, {$set: {isNoted}}
+  );
+  return res.status(200).json({ success: true });
+};
+
+const modifyOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { shippingCarrier, countryCode, orderId, trackingNumber } = req.value.body;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  let url = `${config.WISH_URL_V2}/order/modify-tracking?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`;
+  if (trackingNumber) {
+    url += `&tracking_number=${trackingNumber}`
+  }
+  try {
+    console.log(url)
+    const { data } = await axios.get(url);
+    // update db cho real time
+    return res.status(200).json({ data: data.data });
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+}  
+
+const refundOrder = async (req, res, next) => {
+  const { shop_id } = req.value.params;
+  const { reasonCode, orderId } = req.value.body;
+
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/order/refund?reason_code=${reasonCode}&id=${orderId}&access_token=${theShop.accessToken}`;
+  try {
+    const { data } = await axios.get(url);
+    // update db cho real time
+    return res.status(200).json({ data: data.data });
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+}
+
 module.exports = {
   listShopOfUser,
   creatNewShop,
@@ -366,4 +482,9 @@ module.exports = {
   getRefreshUrl,
   updateAccessToken,
   AutoRefreshToken,
+  syncShopData,
+  getNotedOrder,
+  noteOrder,
+  refundOrder,
+  modifyOrder
 };

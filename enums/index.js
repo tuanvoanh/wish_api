@@ -7,8 +7,16 @@ const eROLE = {
     staff: 'Staff',
     user: "User"
 }
+const eSYNC_STATUS = {
+    unSync: 'UN_SYNC',
+    schedule: 'SCHEDULE',
+    error: "ERROR",
+    syncing: 'SYNCING'
+}
+
 module.exports = {
     DEPOSIT_STATUS,
     MESSAGE_TYPE,
-    eROLE
+    eROLE,
+    eSYNC_STATUS
 }

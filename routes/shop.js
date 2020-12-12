@@ -118,6 +118,14 @@ router.route("/:shop_id/orders").get(
   ShopController.getAllOrder
 );
 
+router.route("/:shop_id/noted_orders").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateQuery(schemas.orderQuerySchema),
+  isMember,
+  ShopController.getNotedOrder
+);
+
 router
   .route("/:shop_id/fullfill_orders")
   .get(
@@ -128,12 +136,28 @@ router
     ShopController.getFullFillOrder
   )
   .post(
-    passport.authenticate("jwt", { session: false }), // get delivery country
+    passport.authenticate("jwt", { session: false }), 
     validateParam(schemas.idSchema, "shop_id"),
     validateBody(schemas.fulfillOrderSchema),
     isMember,
     ShopController.fullFillOrder
   );
+
+router.route("/:shop_id/modify_shipped_orders").post(
+  passport.authenticate("jwt", { session: false }), 
+  validateParam(schemas.idSchema, "shop_id"),
+  validateBody(schemas.fulfillOrderSchema),
+  isMember,
+  ShopController.modifyOrder
+);
+
+router.route("/:shop_id/refund_orders").post(
+  passport.authenticate("jwt", { session: false }), 
+  validateParam(schemas.idSchema, "shop_id"),
+  validateBody(schemas.refundOrderSchema),
+  isMember,
+  ShopController.refundOrder
+);
 
 router.route("/:shop_id/refresh_token_url").get(
   passport.authenticate("jwt", { session: false }), // get delivery country
@@ -156,4 +180,22 @@ router.route("/:shop_id/access_token").put(
   isAdmin,
   ShopController.updateAccessToken
 );
+
+router.route("/:shop_id/sync").get(
+  // passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateQuery(schemas.syncDateSchema),
+  // isAdmin,
+  ShopController.syncShopData
+);
+
+router.route("/:shop_id/orders/:order_id/note").put(
+  // passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateParam(schemas.idSchema, "order_id"),
+  validateBody(schemas.noteOrderSchema),
+  // isMember,
+  ShopController.noteOrder
+);
+
 module.exports = router;

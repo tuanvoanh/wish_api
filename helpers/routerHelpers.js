@@ -1,4 +1,6 @@
-const Joi = require("@hapi/joi");
+const JoiBase = require("@hapi/joi");
+const JoiDate = require("@hapi/joi-date")
+const Joi = JoiBase.extend(JoiDate)
 const Role = require('../enums').eROLE
 
 const validateBody = (schema) => {
@@ -83,6 +85,7 @@ const schemas = {
   orderQuerySchema: Joi.object().keys({
     start: Joi.number().integer().min(0).default(0),
     limit: Joi.number().integer().min(0).default(5),
+    order: Joi.string().optional()
   }),
 
   intSchema: Joi.object().keys({
@@ -129,10 +132,23 @@ const schemas = {
     trackingNumber: Joi.string().optional()
   }),
 
+  refundOrderSchema: Joi.object().keys({
+    reasonCode: Joi.number().valid(1, 25, 32).required(), 
+    orderId: Joi.string().min(8).required(), 
+  }),
+
   updateAccessTokenSchema: Joi.object().keys({
     accessToken: Joi.string().min(2).required(), 
     expiredTime: Joi.date().required(), 
-  })
+  }),
+
+  syncDateSchema: Joi.object().keys({
+    date: Joi.date().format('YYYY-MM-DD').required()
+  }),
+
+  noteOrderSchema: Joi.object().keys({
+    isNoted: Joi.boolean().required()
+  }),
 };
 
 module.exports = {
