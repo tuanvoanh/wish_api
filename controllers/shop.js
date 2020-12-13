@@ -189,9 +189,8 @@ const getDeliveryCountry = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  // const url = `${config.WISH_URL_V2}/fulfillment/get-confirmed-delivery-countries?access_token=${theShop.accessToken}&format=json`;
+  const url = `${config.WISH_URL_V2}/fulfillment/get-confirmed-delivery-countries?access_token=${theShop.accessToken}&format=json`;
   // console.log(url)
-  const url = 'https://merchant.wish.com/api/v2/fulfillment/get-confirmed-delivery-countries?access_token=c4924c621da748a2920b6d2d47379fa4&format=json'
   try {
     const { data } = await axios.get(url);
     return res.status(200).json(data.data);
