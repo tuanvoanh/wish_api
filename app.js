@@ -9,6 +9,7 @@ const mongoClient = require("mongoose");
 const { MONGODB_URL, PORT } = require("./configs");
 const adminHelper = require("./helpers/createAdmin")
 require("./jobs")
+const syncJob = require("./jobs/scheduleJob").syncScheduleData
 // setup connect mongodb by mongoose
 mongoClient
   .connect(MONGODB_URL, {
@@ -44,6 +45,7 @@ app.use(function(req, res, next) {
 
 app.use("/users", userRoute);
 app.use("/shops", shopRoute);
+syncJob()
 
 // Routes
 app.get("/", (req, res, next) => {

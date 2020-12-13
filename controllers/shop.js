@@ -18,7 +18,7 @@ const listShopOfUser = async (req, res, next) => {
   })
     .populate({
       path: "shop",
-      select: { name: 1, clientId: 1, clientSecret: 1, expiredTime: 1 },
+      select: { name: 1, clientId: 1, clientSecret: 1, expiredTime: 1, lastSync: 1, syncStatus: 1, errorMessage: 1 },
     })
     .skip(skip)
     .limit(limit);
