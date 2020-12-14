@@ -266,6 +266,9 @@ const getAllShopOrder = async (req, res, next) => {
   if (type === "noted") {
     cond["isNoted"] = true
   }
+  if (!type) {
+    cond["shipping_provider"] = {$ne: null}
+  }
   try {  
     const result = await Order.find(cond).sort(condSort).limit(limit).skip(start)
     const total = await Order.countDocuments(cond)
@@ -340,6 +343,7 @@ const fullFillOrder = async (req, res, next) => {
   const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`; //&tracking_number=${trackingNumber}
   try {
     const { data } = await axios.get(url);
+    await orderDetail(orderId, theShop);
     return res.status(200).json({ data: data.data });
   } catch (error) {
     throw axiosWishError(error);
@@ -463,6 +467,7 @@ const modifyOrder = async (req, res, next) => {
     console.log(url)
     const { data } = await axios.get(url);
     // update db cho real time
+    await orderDetail(orderId, theShop)
     return res.status(200).json({ data: data.data });
   } catch (error) {
     throw axiosWishError(error);
@@ -483,10 +488,17 @@ const refundOrder = async (req, res, next) => {
   try {
     const { data } = await axios.get(url);
     // update db cho real time
+    await orderDetail(orderId, theShop)
     return res.status(200).json({ data: data.data });
   } catch (error) {
     throw axiosWishError(error);
   }
+}
+
+const orderDetail = async (orderId, theShop) => {
+  const url = `https://merchant.wish.com/api/v2/order?id=${orderId}&access_token=${theShop.accessToken}&show_original_shipping_detail=True`
+  const { data } = await axios.get(url);
+  await Order.updateOne({_id: orderId} , {$set: data["Order"]})
 }
 
 module.exports = {
