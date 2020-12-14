@@ -230,7 +230,7 @@ const getAllOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const cond = {shopId: shop_id}
+  const cond = {shopId: shop_id, shipping_provider: {$ne: null}}
   if (order) {
     cond["order_id"] = { "$regex": `.*${order}.*` }
   }
