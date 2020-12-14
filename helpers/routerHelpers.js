@@ -88,6 +88,18 @@ const schemas = {
     order: Joi.string().optional()
   }),
 
+  orderShopQuerySchema: Joi.object().keys({
+    start: Joi.number().integer().min(0).default(0),
+    limit: Joi.number().integer().min(0).default(5),
+    order: Joi.string().optional(),
+    sort: Joi.number().valid(1,-1),
+    type: Joi.string().valid("action_required", "noted")
+  }),
+
+  orderShopBodySchema: Joi.object().keys({
+    listShop: Joi.array()
+  }),
+
   intSchema: Joi.object().keys({
     param: Joi.number().integer().min(0).required(),
   }),

@@ -248,6 +248,33 @@ const getAllOrder = async (req, res, next) => {
   }
 };
 
+const getAllShopOrder = async (req, res, next) => {
+  const { limit, start, order, sort, type } = req.value.query;
+  const { listShop } = req.value.body;
+
+  const cond = {shopId: {$in: listShop}}
+  if (order) {
+    cond["order_id"] = { "$regex": `.*${order}.*` }
+  }
+  const condSort = {last_updated: -1}
+  if (sort == 1) {
+    condSort.last_updated = 1
+  }
+  if (type === "action_required") {
+    cond["shipping_provider"] = null
+  }
+  if (type === "noted") {
+    cond["isNoted"] = true
+  }
+  try {  
+    const result = await Order.find(cond).sort(condSort).limit(limit).skip(start)
+    const total = await Order.countDocuments(cond)
+    return res.status(200).json({ data: result, count: total });
+  } catch (error) {
+    throw axiosWishError(error);
+  }
+};
+
 const getFullFillOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
   const { limit, start, order } = req.value.query;
@@ -485,5 +512,6 @@ module.exports = {
   getNotedOrder,
   noteOrder,
   refundOrder,
-  modifyOrder
+  modifyOrder,
+  getAllShopOrder
 };
