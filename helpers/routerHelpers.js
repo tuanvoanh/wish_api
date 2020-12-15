@@ -93,7 +93,7 @@ const schemas = {
     limit: Joi.number().integer().min(0).default(5),
     order: Joi.string().optional(),
     sort: Joi.number().valid(1,-1),
-    type: Joi.string().valid("action_required", "noted")
+    type: Joi.string().valid("action_required", "noted", null).optional()
   }),
 
   orderShopBodySchema: Joi.object().keys({
