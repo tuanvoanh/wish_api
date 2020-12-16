@@ -261,13 +261,13 @@ const getAllShopOrder = async (req, res, next) => {
     condSort.last_updated = 1
   }
   if (type === "action_required") {
-    cond["shipping_provider"] = null
+    cond["state"] = "APPROVED"
   }
   if (type === "noted") {
     cond["isNoted"] = true
   }
   if (!type) {
-    cond["shipping_provider"] = {$ne: null}
+    cond["state"] = {$in: ["SHIPPED", "REFUNDED"]}
   }
   try {  
     const result = await Order.find(cond).sort(condSort).limit(limit).skip(start)
