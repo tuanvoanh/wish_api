@@ -7,7 +7,7 @@ const syncScheduleData = async () => {
   const listScheduleShop = await shopService.getScheduleShop();
   console.log("heheheh");
   const now = moment.utc().format("YYYY-MM-DDTHH:mm:ss");
-  const since = moment.utc().subtract(24, "hours").format("YYYY-MM-DDTHH:mm:ss");
+  const since = moment.utc().subtract(10, "days").format("YYYY-MM-DDTHH:mm:ss");
   console.log(`START ${listScheduleShop.length} SCHEDULE SYNC AT ${now} SINCE ${since}`);
   if (listScheduleShop && listScheduleShop.length) {
     // let chunkListShop = chunk(listScheduleShop, 5);
