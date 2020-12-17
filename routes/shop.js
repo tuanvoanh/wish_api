@@ -110,6 +110,14 @@ router.route("/:shop_id/shipping_carriers").get(
   ShopController.getShippingCarrier
 );
 
+router.route("/:shop_id/products/:product_id/image").get(
+  passport.authenticate("jwt", { session: false }), // get delivery country
+  validateParam(schemas.idSchema, "shop_id"),
+  validateParam(schemas.codeSchema, "product_id"),
+  // isMember,
+  ShopController.getProductImage
+);
+
 router.route("/all_orders").post(
   passport.authenticate("jwt", { session: false }), // get delivery country
   validateQuery(schemas.orderShopQuerySchema),

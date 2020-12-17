@@ -220,6 +220,29 @@ const getShippingCarrier = async (req, res, next) => {
   }
 };
 
+const getProductImage = async (req, res, next) => {
+  const { shop_id, product_id } = req.value.params;
+  const theShop = await Shop.findOne({
+    _id: shop_id,
+  });
+  if (!theShop) {
+    throw new Error("this shop does not exist");
+  }
+  const url = `${config.WISH_URL_V2}/product?id=${product_id}&access_token=${theShop.accessToken}`;
+  // const url = `https://merchant.wish.com/api/v2/product?id=${product_id}&access_token=57c48fc5baa247e4882ddfa1d9548aa5`;
+  
+  try {
+    const { data } = await axios.get(url);
+    if (data.data && data.data.Product && data.data.Product.original_image_url) {
+      return res.status(200).json({original_image_url: data.data.Product.original_image_url});
+    }
+    return res.status(200).json("");
+  } catch (error) {
+    // return res.status(200).json(config.listShippingUs);
+    throw axiosWishError(error);
+  }
+};
+
 const getAllOrder = async (req, res, next) => {
   const { shop_id } = req.value.params;
   const { limit, start, order } = req.value.query;
@@ -525,5 +548,6 @@ module.exports = {
   noteOrder,
   refundOrder,
   modifyOrder,
-  getAllShopOrder
+  getAllShopOrder,
+  getProductImage
 };
