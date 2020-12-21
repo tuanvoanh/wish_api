@@ -272,16 +272,18 @@ const getAllOrder = async (req, res, next) => {
 };
 
 const getAllShopOrder = async (req, res, next) => {
-  const { limit, start, order, sort, type } = req.value.query;
+  const { limit, start, order, sort, type, sortCol } = req.value.query;
   const { listShop } = req.value.body;
 
   const cond = {shopId: {$in: listShop}}
   if (order) {
     cond["order_id"] = { "$regex": `.*${order}.*` }
   }
-  const condSort = {last_updated: -1}
-  if (sort == 1) {
-    condSort.last_updated = 1
+  const condSort = {}
+  if (sort && sortCol) {
+    condSort[sortCol] = sort
+  } else {
+    condSort["last_updated"] = -1
   }
   if (type === "action_required") {
     cond["state"] = "APPROVED"
