@@ -233,10 +233,10 @@ const getProductImage = async (req, res, next) => {
   
   try {
     const { data } = await axios.get(url);
-    if (data.data && data.data.Product && data.data.Product.extra_images) {
-      return res.status(200).json({image_url: data.data.Product.extra_images});
+    if (data.data && data.data.Product && data.data.Product.main_image) {
+      return res.status(200).json({image_url: data.data.Product.main_image});
     }
-    return res.status(200).json("");
+    return res.status(200).json({image_url: ""});
   } catch (error) {
     // return res.status(200).json(config.listShippingUs);
     throw axiosWishError(error);
