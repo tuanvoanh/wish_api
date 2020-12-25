@@ -369,7 +369,7 @@ const fullFillOrder = async (req, res, next) => {
   try {
     const { data } = await axios.get(url);
     await orderDetail(orderId, theShop);
-    return res.status(200).json({ data: data.data });
+    return res.status(200).json({ data });
   } catch (error) {
     throw axiosWishError(error);
   }
@@ -489,11 +489,10 @@ const modifyOrder = async (req, res, next) => {
     url += `&tracking_number=${trackingNumber}`
   }
   try {
-    console.log(url)
     const { data } = await axios.get(url);
     // update db cho real time
     await orderDetail(orderId, theShop)
-    return res.status(200).json({ data: data.data });
+    return res.status(200).json({ data });
   } catch (error) {
     throw axiosWishError(error);
   }
@@ -514,7 +513,7 @@ const refundOrder = async (req, res, next) => {
     const { data } = await axios.get(url);
     // update db cho real time
     await orderDetail(orderId, theShop)
-    return res.status(200).json({ data: data.data });
+    return res.status(200).json({ data });
   } catch (error) {
     throw axiosWishError(error);
   }
