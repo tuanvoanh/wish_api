@@ -369,7 +369,7 @@ const fullFillOrder = async (req, res, next) => {
   try {
     const { data } = await axios.get(url);
     await orderDetail(orderId, theShop);
-    return res.status(200).json({ data });
+    return res.status(200).json({ success: true });
   } catch (error) {
     throw axiosWishError(error);
   }
@@ -492,7 +492,7 @@ const modifyOrder = async (req, res, next) => {
     const { data } = await axios.get(url);
     // update db cho real time
     await orderDetail(orderId, theShop)
-    return res.status(200).json({ data });
+    return res.status(200).json({ success: true });
   } catch (error) {
     throw axiosWishError(error);
   }
@@ -513,16 +513,16 @@ const refundOrder = async (req, res, next) => {
     const { data } = await axios.get(url);
     // update db cho real time
     await orderDetail(orderId, theShop)
-    return res.status(200).json({ data });
+    return res.status(200).json({ success: true });
   } catch (error) {
     throw axiosWishError(error);
   }
 }
 
 const orderDetail = async (orderId, theShop) => {
-  const url = `https://merchant.wish.com/api/v2/order?id=${orderId}&access_token=${theShop.accessToken}&show_original_shipping_detail=True`
+  const url = `${config.WISH_URL_V2}/order?id=${orderId}&access_token=${theShop.accessToken}&show_original_shipping_detail=True`
   const { data } = await axios.get(url);
-  await Order.updateOne({_id: orderId} , {$set: data["Order"]})
+  await Order.updateOne({_id: orderId} , {$set: data.data["Order"]})
 }
 
 module.exports = {
