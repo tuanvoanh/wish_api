@@ -92,7 +92,7 @@ const schemas = {
     start: Joi.number().integer().min(0).default(0),
     limit: Joi.number().integer().min(0).default(5),
     order: Joi.string().optional(),
-    sortCol: Joi.string().valid("last_updated", "order_time", "days_to_fulfill",null, "").optional(),
+    sortCol: Joi.string().valid("last_updated", "order_time", "hours_to_fulfill", "isNoted", "state",null, "").optional(),
     sort: Joi.number().valid(1,-1),
     type: Joi.string().valid("action_required", "noted", null, "").optional()
   }),
