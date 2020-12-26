@@ -365,11 +365,11 @@ const fullFillOrder = async (req, res, next) => {
   if (!theShop) {
     throw new Error("this shop does not exist");
   }
-  const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`; //&tracking_number=${trackingNumber}
+  let url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`; //&tracking_number=${trackingNumber}
   if (trackingNumber) {
     url += `&tracking_number=${trackingNumber}`
   }
-  
+  console.log("fulfill url: ", url)
   try {
     const { data } = await axios.get(url);
     await orderDetail(orderId, theShop);
@@ -492,6 +492,7 @@ const modifyOrder = async (req, res, next) => {
   if (trackingNumber) {
     url += `&tracking_number=${trackingNumber}`
   }
+  console.log("modify url: ", url)
   try {
     const { data } = await axios.get(url);
     // update db cho real time
