@@ -366,6 +366,10 @@ const fullFillOrder = async (req, res, next) => {
     throw new Error("this shop does not exist");
   }
   const url = `${config.WISH_URL_V2}/order/fulfill-one?access_token=${theShop.accessToken}&format=json&id=${orderId}&tracking_provider=${shippingCarrier}&origin_country_code=${countryCode}`; //&tracking_number=${trackingNumber}
+  if (trackingNumber) {
+    url += `&tracking_number=${trackingNumber}`
+  }
+  
   try {
     const { data } = await axios.get(url);
     await orderDetail(orderId, theShop);
