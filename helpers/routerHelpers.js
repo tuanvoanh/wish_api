@@ -98,7 +98,8 @@ const schemas = {
   }),
 
   orderShopBodySchema: Joi.object().keys({
-    listShop: Joi.array()
+    listShop: Joi.array(),
+    all: Joi.boolean().optional().default(false)
   }),
 
   intSchema: Joi.object().keys({
@@ -136,6 +137,12 @@ const schemas = {
     page: Joi.number().integer().min(0).default(0),
     limit: Joi.number().integer().positive().default(10),
     name: Joi.string().optional()
+  }),
+
+  allUserPagination: Joi.object().keys({
+    page: Joi.number().integer().min(0).default(0),
+    limit: Joi.number().integer().positive().default(10),
+    s_email: Joi.string().optional()
   }),
 
   fulfillOrderSchema: Joi.object().keys({

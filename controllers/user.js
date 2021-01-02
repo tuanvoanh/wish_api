@@ -112,6 +112,36 @@ const changUserPass = async (req, res, next) => {
   return res.status(200).json({ success: true });
 };
 
+const getAllUser = async (req, res, next) => {
+  const limit = req.value.query.limit;
+  const page = req.value.query.page;
+  const s_email = req.value.query.s_email;
+  const skip = page * limit;
+  const cond = {}
+  if (s_email) {
+    cond["email"] = { "$regex": `.*${s_email}.*` }
+  }
+  const listUser = await User.find(cond).select("-password")
+    .skip(skip)
+    .limit(limit);
+  const totalUser = await User.find({}).count();
+  return res.status(200).json({
+    total_item: totalUser,
+    total_page: Math.ceil(totalUser / limit),
+    per_page: limit,
+    current_page: page,
+    items: listUser,
+  });
+}
+
+const removeUser = async (req, res, next) => {
+  const { userID } = req.value.params;
+
+  await User.deleteOne({_id: userID});
+
+  return res.status(204).json({});
+}
+
 module.exports = {
   // authFacebook,
   // authGoogle,
@@ -126,5 +156,7 @@ module.exports = {
   forgotPassword,
   newPassword,
   resetPassword,
-  changUserPass
+  changUserPass,
+  getAllUser,
+  removeUser
 };

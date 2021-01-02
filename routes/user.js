@@ -8,6 +8,7 @@ const {
   validateBody,
   validateParam,
   schemas,
+  validateQuery,
 } = require("../helpers/routerHelpers");
 const { isSuperAdmin } = require("../helpers/shopValidate");
 const passport = require("passport");
@@ -68,5 +69,23 @@ router
     validateBody(schemas.userChangePassSchema),
     UserController.changUserPass
   );
+
+router
+  .route("/admin/users")
+  .get(
+    passport.authenticate("jwt", { session: false }),
+    isSuperAdmin,
+    validateQuery(schemas.allUserPagination),
+    UserController.getAllUser
+  );
+
+router
+  .route("/admin/users/:userID")
+  .delete(
+    passport.authenticate("jwt", { session: false }),
+    isSuperAdmin,
+    validateParam(schemas.idSchema, "userID"),
+    UserController.removeUser
+);
 
 module.exports = router;

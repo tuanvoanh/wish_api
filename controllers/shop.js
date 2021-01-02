@@ -273,8 +273,10 @@ const getAllOrder = async (req, res, next) => {
 
 const getAllShopOrder = async (req, res, next) => {
   const { limit, start, order, sort, type, sortCol } = req.value.query;
-  const { listShop } = req.value.body;
-
+  let { listShop, all } = req.value.body;
+  if (all) {
+    listShop = await ShopUser.find({user: req.user._id}).distinct('shop')
+  }
   const cond = {shopId: {$in: listShop}}
   if (order) {
     cond["order_id"] = { "$regex": `.*${order}.*` }
