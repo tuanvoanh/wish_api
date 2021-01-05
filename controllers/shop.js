@@ -297,7 +297,12 @@ const getAllShopOrder = async (req, res, next) => {
     cond["state"] = {$in: ["SHIPPED", "REFUNDED"]}
   }
   try {  
-    const result = await Order.find(cond).sort(condSort).limit(limit).skip(start)
+    const result = await Order.find(cond)
+    .populate({
+      path: "shopId",
+      model: Shop,
+      select: { name: 1 },
+    }).sort(condSort).limit(limit).skip(start)
     const total = await Order.countDocuments(cond)
     return res.status(200).json({ data: result, count: total });
   } catch (error) {
